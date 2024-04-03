@@ -47,23 +47,26 @@ while True:
             
         if event.type == pygame.KEYDOWN:
             if game.game_over:
-                game.reset()
-            if event.key == pygame.K_LEFT and not game.game_over:
-                moveLeft = True
-            if event.key == pygame.K_RIGHT and not game.game_over:
-                moveRight = True
-            if event.key == pygame.K_DOWN and not game.game_over:
-                moveDown = True
-            if event.key == pygame.K_UP and not game.game_over:
-                game.rotate_up()
-            if event.key == pygame.K_z and not game.game_over:
-                game.rotate_down()
-            if event.key == pygame.K_SPACE and not game.game_over:
-                game.hard_drop()
+                if event.key == pygame.K_r:
+                    moveLeft = False
+                    moveRight = False
+                    moveDown = False
+                    game.reset()
+            else:
+                if event.key == pygame.K_LEFT:
+                    moveLeft = True
+                if event.key == pygame.K_RIGHT:
+                    moveRight = True
+                if event.key == pygame.K_DOWN:
+                    moveDown = True
+                if event.key == pygame.K_UP:
+                    game.rotate_up()
+                if event.key == pygame.K_z:
+                    game.rotate_down()
+                if event.key == pygame.K_SPACE:
+                    game.hard_drop()
 
         elif event.type == pygame.KEYUP:
-            if game.game_over:
-                game.reset()
             if event.key == pygame.K_LEFT and not game.game_over:
                 moveLeft = False
             if event.key == pygame.K_RIGHT and not game.game_over:
@@ -86,6 +89,7 @@ while True:
     
     screen.fill((0, 0, 0)) # Black screen
     screen.fill((99, 99, 99), (COL_OFFSET, ROW_OFFSET, 301, 601)) # Grid outline
+    # screen.fill((99, 99, 99), (COL_OFFSET + 300, ROW_OFFSET + 50, 301, 601))
     game.draw(screen, COL_OFFSET, ROW_OFFSET)
 
     pygame.display.update()

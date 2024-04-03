@@ -61,6 +61,17 @@ class Board:
                     cell_rect = pygame.Rect(col * self.cell_size + 1 + col_offset, row * self.cell_size + 1 + row_offset, self.cell_size - 1, self.cell_size - 1)
                     pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
     
+    def draw_game_over(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
+        for row in range(self.num_rows):
+            for col in range(self.num_cols):
+                cell_value = self.grid[row][col]
+                if cell_value in [1, 2, 3, 4, 5, 6, 7]:
+                    cell_rect = pygame.Rect(col * self.cell_size + col_offset, row * self.cell_size + row_offset, self.cell_size, self.cell_size)
+                    pygame.draw.rect(screen, self.colors[15], cell_rect)
+                else:
+                    cell_rect = pygame.Rect(col * self.cell_size + 1 + col_offset, row * self.cell_size + 1 + row_offset, self.cell_size - 1, self.cell_size - 1)
+                    pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
+
     def reset(self) -> None:
         for row in range(self.num_rows):
             for col in range(self.num_cols):

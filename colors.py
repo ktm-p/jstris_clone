@@ -2,6 +2,9 @@ class Colors:
     # NO PIECE
     no_piece = (0, 0, 0)
 
+    # GAME OVER PIECE
+    game_over_piece = (99, 99, 99)
+
     # TETROMINO
     i_piece = (13, 156, 215)
     j_piece = (33, 66, 199)
@@ -24,4 +27,5 @@ class Colors:
     def get_colors(cls) -> list:    
         return [cls.no_piece,
                 cls.i_piece, cls.j_piece, cls.l_piece, cls.o_piece, cls.s_piece, cls.t_piece, cls.z_piece,
-                cls.i_silhouette, cls.j_silhouette, cls.l_silhouette, cls.o_silhoeutte, cls.s_silhouette, cls.t_silhouette, cls.z_silhouette]
+                cls.i_silhouette, cls.j_silhouette, cls.l_silhouette, cls.o_silhoeutte, cls.s_silhouette, cls.t_silhouette, cls.z_silhouette,
+                cls.game_over_piece]
