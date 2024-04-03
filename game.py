@@ -11,6 +11,7 @@ class Game:
         self.current_block = self.get_block()
         self.next_block = self.get_block()
         self.silhouette = self.get_silhouette()
+        self.game_over = False
 
     def get_block(self) -> Block:
         if len(self.blocks) == 0:
@@ -89,9 +90,13 @@ class Game:
             self.board.grid[cell.row][cell.col] = self.current_block.id
         
         self.current_block = self.next_block
+        self.silhouette = self.get_silhouette()
         self.next_block = self.get_block()
 
         self.board.clear_rows()
+
+        if not self.block_fit():
+            self.game_over = True
 
     # COLLISION CHECKS
     def block_inside(self) -> bool:
@@ -122,7 +127,16 @@ class Game:
                 return False
         return True
     
-    
     def draw(self, screen: pygame.display) -> None:
         self.board.draw(screen)
+        # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
         self.current_block.draw(screen)
+    
+    def reset(self) -> None:
+        self.board.reset()
+        self.blocks = [IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
+        self.silhouettes = [ISilhouette(), JSilhouette(), LSilhouette(), OSilhouette(), SSilhouette(), TSilhouette(), ZSilhouette()]
+        self.current_block = self.get_block()
+        self.next_block = self.get_block()
+        self.silhouette = self.get_silhouette()
+        self.game_over = False

@@ -43,11 +43,25 @@ class Board:
             elif cleared >= 1:
                 self.move_row_down(row, cleared)
     
+    # Silhouette Calculations
+    def highest_row(self, col: int) -> int:
+        for row in range(0, self.num_rows):
+            if self.grid[row][col] in [1, 2, 3, 4, 5, 6, 7]:
+                return row - 1
+        return self.num_rows - 1
     # DRAW CELLS
     def draw(self, screen: pygame.display) -> None:
         for row in range(self.num_rows):
             for col in range(self.num_cols):
                 cell_value = self.grid[row][col]
-                cell_rect = pygame.Rect(col * self.cell_size + 1, row * self.cell_size + 1, self.cell_size - 1, self.cell_size - 1)
-
-                pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
+                if cell_value:
+                    cell_rect = pygame.Rect(col * self.cell_size, row * self.cell_size, self.cell_size, self.cell_size)
+                    pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
+                else:
+                    cell_rect = pygame.Rect(col * self.cell_size + 1, row * self.cell_size + 1, self.cell_size - 1, self.cell_size - 1)
+                    pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
+    
+    def reset(self) -> None:
+        for row in range(self.num_rows):
+            for col in range(self.num_cols):
+                self.grid[row][col] = 0
