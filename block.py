@@ -36,8 +36,8 @@ class Block:
         return moved_cells
 
     # DRAWS BLOCK
-    def draw(self, screen: pygame.display) -> None:
+    def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         cells = self.get_cell_position()
         for cell in cells:
-            cell_rect = pygame.Rect(cell.col * self.cell_size, cell.row * self.cell_size, self.cell_size, self.cell_size)
+            cell_rect = pygame.Rect(cell.col * self.cell_size + col_offset, cell.row * self.cell_size + row_offset, self.cell_size, self.cell_size)
             pygame.draw.rect(screen, self.colors[self.id], cell_rect)

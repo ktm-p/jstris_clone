@@ -6,9 +6,11 @@ from game import Game
 random.seed(69)
 
 # CONSTANTS
-SCREEN_WIDTH = 500
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 750
 SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
+ROW_OFFSET = 50
+COL_OFFSET = 200
 
 def is_fullscreen():
     return (screen.get_flags() & pygame.FULLSCREEN)
@@ -83,8 +85,8 @@ while True:
             pygame.time.delay(10)
     
     screen.fill((0, 0, 0)) # Black screen
-    screen.fill((99, 99, 99), (0, 0, 301, 600)) # Grid outline
-    game.draw(screen)
+    screen.fill((99, 99, 99), (COL_OFFSET, ROW_OFFSET, 301, 601)) # Grid outline
+    game.draw(screen, COL_OFFSET, ROW_OFFSET)
 
     pygame.display.update()
     clock.tick(60)

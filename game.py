@@ -127,10 +127,11 @@ class Game:
                 return False
         return True
     
-    def draw(self, screen: pygame.display) -> None:
-        self.board.draw(screen)
+    def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
+        self.board.draw(screen, col_offset, row_offset)
         # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
-        self.current_block.draw(screen)
+        self.current_block.draw(screen, col_offset, row_offset)
+        self.next_block.draw(screen, col_offset + 300, row_offset + 50)
     
     def reset(self) -> None:
         self.board.reset()
