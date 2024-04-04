@@ -49,6 +49,7 @@ class Board:
             if self.grid[row][col] in [1, 2, 3, 4, 5, 6, 7]:
                 return row - 1
         return self.num_rows - 1
+    
     # DRAW CELLS
     def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         for row in range(self.num_rows):

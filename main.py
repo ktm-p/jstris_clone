@@ -9,8 +9,8 @@ random.seed(69)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 750
 SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
-ROW_OFFSET = 50
-COL_OFFSET = 200
+ROW_OFFSET = 60
+COL_OFFSET = 210
 
 def is_fullscreen():
     return (screen.get_flags() & pygame.FULLSCREEN)
@@ -65,6 +65,8 @@ while True:
                     game.rotate_down()
                 if event.key == pygame.K_SPACE:
                     game.hard_drop()
+                if event.key == pygame.K_c:
+                    game.hold_block()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and not game.game_over:
@@ -94,4 +96,3 @@ while True:
 
     pygame.display.update()
     clock.tick(60)
-    

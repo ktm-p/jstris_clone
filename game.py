@@ -11,6 +11,9 @@ class Game:
         self.current_block = self.get_block()
         self.next_blocks = [self.get_block() for i in range(5)]
         self.next_block = self.next_blocks[0]
+        self.held_block = None
+        self.holding = False
+        self.turn_holding = False
         self.silhouette = self.get_silhouette()
         self.game_over = False
 
@@ -97,9 +100,27 @@ class Game:
         self.next_block = self.next_blocks[0]
 
         self.board.clear_rows()
+        self.turn_holding = False
 
         if not self.block_fit():
             self.game_over = True
+    
+    # HOLDS BLOCK
+    def hold_block(self) -> None:
+        tetrominosHeld = [None, IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
+        tetrominosCurrent = [None, IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
+        
+        if not self.turn_holding:
+            if not self.holding:
+                self.held_block = tetrominosHeld[self.current_block.id]
+                self.current_block = self.next_blocks.pop(0)
+                self.next_blocks.append(self.get_block())
+                self.next_block = self.next_blocks[0]
+                self.holding = True
+            else:
+                self.held_block, self.current_block = tetrominosHeld[self.current_block.id], tetrominosCurrent[self.held_block.id]
+            
+            self.turn_holding = True
 
     # COLLISION CHECKS
     def block_inside(self) -> bool:
@@ -129,7 +150,8 @@ class Game:
             if not self.board.is_empty(cell.row, cell.col):
                 return False
         return True
-    
+
+    # DRAW CELLS
     def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         if self.game_over:
             self.place_block()
@@ -140,6 +162,7 @@ class Game:
             # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
             self.current_block.draw(screen, col_offset, row_offset)
             self.draw_next(screen, col_offset, row_offset)
+            self.draw_held(screen, -col_offset, row_offset)
     
     def draw_next(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         row_offset_multiplier = 0
@@ -149,6 +172,13 @@ class Game:
             else:
                 block.draw(screen, col_offset + 240, row_offset + 30 + (3 * block.cell_size * row_offset_multiplier))
             row_offset_multiplier += 1
+    
+    def draw_held(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
+        if self.holding:
+            if self.held_block.id == 1:
+                self.held_block.draw(screen, col_offset + 180, row_offset + 30)
+            else:    
+                self.held_block.draw(screen, col_offset + 210, row_offset + 30)
 
     def reset(self) -> None:
         self.board.reset()
@@ -159,3 +189,5 @@ class Game:
         self.next_block = self.next_blocks[0]
         self.silhouette = self.get_silhouette()
         self.game_over = False
+        self.held_block = None
+        self.holding = False
