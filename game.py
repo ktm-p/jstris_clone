@@ -63,6 +63,7 @@ class Game:
                 break
     
     # ROTATIONS
+    # TODO: IMPLEMENT KICK-BACKS FOR ROTATION
     def rotate_up(self) -> None:
         self.current_block.rotate_up()
         cells = self.current_block.get_cell_position()
@@ -162,7 +163,7 @@ class Game:
             # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
             self.current_block.draw(screen, col_offset, row_offset)
             self.draw_next(screen, col_offset, row_offset)
-            self.draw_held(screen, -col_offset, row_offset)
+            self.draw_held(screen, 0, row_offset)
     
     def draw_next(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         row_offset_multiplier = 0
@@ -176,9 +177,9 @@ class Game:
     def draw_held(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         if self.holding:
             if self.held_block.id == 1:
-                self.held_block.draw(screen, col_offset + 180, row_offset + 30)
+                self.held_block.draw(screen, -60, row_offset + 30)
             else:    
-                self.held_block.draw(screen, col_offset + 210, row_offset + 30)
+                self.held_block.draw(screen, -30, row_offset + 30)
 
     def reset(self) -> None:
         self.board.reset()

@@ -6,11 +6,11 @@ from game import Game
 random.seed(69)
 
 # CONSTANTS
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 750
 SCREEN_HEIGHT = 750
 SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
-ROW_OFFSET = 60
-COL_OFFSET = 210
+ROW_OFFSET = 90
+COL_OFFSET = 180
 
 def is_fullscreen():
     return (screen.get_flags() & pygame.FULLSCREEN)
@@ -21,6 +21,10 @@ screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption("A Tetris Clone")
 clock = pygame.time.Clock()
 game = Game()
+
+# TIMER
+start_time = 0
+my_font = pygame.font.SysFont('Arial', 15)
 
 # AUTOMATIC BLOCK FALL
 TIMEREVENT = pygame.USEREVENT + 1
@@ -51,6 +55,7 @@ while True:
                     moveLeft = False
                     moveRight = False
                     moveDown = False
+                    start_time = pygame.time.get_ticks()
                     game.reset()
             else:
                 if event.key == pygame.K_LEFT:
@@ -93,6 +98,11 @@ while True:
     screen.fill((99, 99, 99), (COL_OFFSET, ROW_OFFSET, 301, 601)) # Grid outline
     # screen.fill((99, 99, 99), (COL_OFFSET + 300, ROW_OFFSET + 50, 301, 601))
     game.draw(screen, COL_OFFSET, ROW_OFFSET)
+
+    if not game.game_over:
+        current_time = (pygame.time.get_ticks() - start_time) / 1000.0
+        text_surface = my_font.render('Time: ' + str(current_time), True, (99, 99, 99))
+        screen.blit(text_surface, (295, 700))
 
     pygame.display.update()
     clock.tick(60)
