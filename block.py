@@ -25,6 +25,9 @@ class Block:
     def rotate_down(self) -> None:
         self.rotation_state = (self.rotation_state - 1) % len(self.cells)
 
+    def set_rotation_state(self, rotation_state: int) -> None:
+        self.rotation_state = rotation_state
+
     # GETS ALL CELLS
     def get_cell_position(self) -> list[Position]:
         cells = self.cells[self.rotation_state]

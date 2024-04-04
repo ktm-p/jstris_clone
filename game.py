@@ -7,14 +7,18 @@ class Game:
     def __init__(self) -> None:
         self.board = Board()
         self.blocks = [IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
-        self.silhouettes = [ISilhouette(), JSilhouette(), LSilhouette(), OSilhouette(), SSilhouette(), TSilhouette(), ZSilhouette()]
+
         self.current_block = self.get_block()
         self.next_blocks = [self.get_block() for i in range(5)]
         self.next_block = self.next_blocks[0]
+
+        self.silhouette_offset = 0
+        self.silhouette_rotation_state = 0
+        self.silhouette = self.get_silhouette()
+
         self.held_block = None
         self.holding = False
         self.turn_holding = False
-        self.silhouette = self.get_silhouette()
         self.game_over = False
 
     def get_block(self) -> Block:
@@ -27,8 +31,9 @@ class Game:
         return block
 
     def get_silhouette(self) -> Block:
-        id = self.current_block.id
-        silhouette = self.silhouettes[id - 1]
+        silhouette = self.silhouette_copy(self.current_block)
+        silhouette.move(0, self.silhouette_offset)
+        silhouette.set_rotation_state(self.silhouette_rotation_state)
         while True:
             silhouette.move(1, 0)
             if not (self.silhouette_inside(silhouette) and self.silhouette_fit(silhouette)):
@@ -40,13 +45,23 @@ class Game:
     # BASIC MOVEMENTS
     def move_right(self) -> None:
         self.current_block.move(0, 1)
+        self.silhouette_offset += 1
+
         if not (self.block_inside() and self.block_fit()):
             self.current_block.move(0, -1)
+            self.silhouette_offset -= 1
+
+        self.silhouette = self.get_silhouette()
 
     def move_left(self) -> None:
         self.current_block.move(0, -1)
+        self.silhouette_offset -= 1
+
         if not (self.block_inside() and self.block_fit()):
             self.current_block.move(0, 1)
+            self.silhouette_offset += 1
+
+        self.silhouette = self.get_silhouette()
 
     def move_down(self) -> None:
         self.current_block.move(1, 0)
@@ -66,17 +81,26 @@ class Game:
     # TODO: IMPLEMENT KICK-BACKS FOR ROTATION
     def rotate_up(self) -> None:
         self.current_block.rotate_up()
+        self.silhouette_rotation_state = (self.silhouette_rotation_state + 1) % 4
+
         cells = self.current_block.get_cell_position()
         for cell in cells:
             if not(self.board.is_inside(cell.row, cell.col)):
                 self.kickback(cell.row, cell.col)
+        
+        self.silhouette = self.get_silhouette()
     
     def rotate_down(self) -> None:
         self.current_block.rotate_down()
+        self.silhouette_rotation_state = (self.silhouette_rotation_state - 1) % 4
+
         cells = self.current_block.get_cell_position()
         for cell in cells:
             if not(self.board.is_inside(cell.row, cell.col)):
                 self.kickback(cell.row, cell.col)
+
+        self.silhouette = self.get_silhouette()
+
 
     def kickback(self, row: int, col: int) -> None:
         if (row < 0):
@@ -85,8 +109,10 @@ class Game:
             self.current_block.move(-1, 0)
         elif (col >= self.board.num_cols):
             self.current_block.move(0, -1)
+            self.silhouette_offset -= 1
         elif (col < 0):
             self.current_block.move(0, 1)
+            self.silhouette_offset += 1
         
     # PLACES BLOCK
     def place_block(self) -> None:
@@ -95,10 +121,12 @@ class Game:
             self.board.grid[cell.row][cell.col] = self.current_block.id
         
         self.current_block = self.next_block
+
+        self.silhouette_offset = 0
+        self.silhouette_rotation_state = 0
         self.silhouette = self.get_silhouette()
-        self.next_blocks.pop(0)
-        self.next_blocks.append(self.get_block())
-        self.next_block = self.next_blocks[0]
+
+        self.get_next_block()
 
         self.board.clear_rows()
         self.turn_holding = False
@@ -108,18 +136,23 @@ class Game:
     
     # HOLDS BLOCK
     def hold_block(self) -> None:
-        tetrominosHeld = [None, IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
-        tetrominosCurrent = [None, IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
-        
         if not self.turn_holding:
             if not self.holding:
-                self.held_block = tetrominosHeld[self.current_block.id]
-                self.current_block = self.next_blocks.pop(0)
-                self.next_blocks.append(self.get_block())
-                self.next_block = self.next_blocks[0]
+                self.held_block = self.copy(self.current_block)
+                self.get_next_block()
+
+                self.silhouette_offset = 0
+                self.silhouette_rotation_state = 0
+                self.silhouette = self.get_silhouette()
+                
                 self.holding = True
+
             else:
-                self.held_block, self.current_block = tetrominosHeld[self.current_block.id], tetrominosCurrent[self.held_block.id]
+                self.held_block, self.current_block = self.copy(self.current_block), self.copy(self.held_block)
+
+                self.silhouette_offset = 0
+                self.silhouette_rotation_state = 0
+                self.silhouette = self.get_silhouette()
             
             self.turn_holding = True
 
@@ -152,6 +185,20 @@ class Game:
                 return False
         return True
 
+    # UTILITY FUNCTIONS
+    def copy(self, block: Block) -> Block:
+        blocks = [None, IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
+        return blocks[block.id]
+    
+    def silhouette_copy(self, block: Block) -> Block:
+        blocks = [None, ISilhouette(), JSilhouette(), LSilhouette(), OSilhouette(), SSilhouette(), TSilhouette(), ZSilhouette()]
+        return blocks[block.id]
+    
+    def get_next_block(self) -> None:
+        self.current_block = self.next_blocks.pop(0)
+        self.next_blocks.append(self.get_block())
+        self.next_block = self.next_blocks[0]
+
     # DRAW CELLS
     def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         if self.game_over:
@@ -161,6 +208,7 @@ class Game:
             self.board.draw(screen, col_offset, row_offset)
             # self.board.draw(screen, col_offset + 300, row_offset + 50)
             # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
+            self.silhouette.draw(screen, col_offset, row_offset)
             self.current_block.draw(screen, col_offset, row_offset)
             self.draw_next(screen, col_offset, row_offset)
             self.draw_held(screen, 0, row_offset)
@@ -188,7 +236,11 @@ class Game:
         self.current_block = self.get_block()
         self.next_blocks = [self.get_block() for i in range(5)]
         self.next_block = self.next_blocks[0]
+
+        self.silhouette_offset = 0
+        self.silhouette_rotation_state = 0
         self.silhouette = self.get_silhouette()
+
         self.game_over = False
         self.held_block = None
         self.holding = False
