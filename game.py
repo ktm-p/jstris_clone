@@ -9,7 +9,8 @@ class Game:
         self.blocks = [IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
         self.silhouettes = [ISilhouette(), JSilhouette(), LSilhouette(), OSilhouette(), SSilhouette(), TSilhouette(), ZSilhouette()]
         self.current_block = self.get_block()
-        self.next_block = self.get_block()
+        self.next_blocks = [self.get_block() for i in range(5)]
+        self.next_block = self.next_blocks[0]
         self.silhouette = self.get_silhouette()
         self.game_over = False
 
@@ -91,7 +92,9 @@ class Game:
         
         self.current_block = self.next_block
         self.silhouette = self.get_silhouette()
-        self.next_block = self.get_block()
+        self.next_blocks.pop(0)
+        self.next_blocks.append(self.get_block())
+        self.next_block = self.next_blocks[0]
 
         self.board.clear_rows()
 
@@ -129,22 +132,30 @@ class Game:
     
     def draw(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
         if self.game_over:
+            self.place_block()
             self.board.draw_game_over(screen, col_offset, row_offset)
         else:
             self.board.draw(screen, col_offset, row_offset)
             # self.board.draw(screen, col_offset + 300, row_offset + 50)
             # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
             self.current_block.draw(screen, col_offset, row_offset)
-            if (self.next_block.id == 4):
-                self.next_block.draw(screen, col_offset + 240 - self.next_block.cell_size, row_offset + 50)
-            else:
-                self.next_block.draw(screen, col_offset + 240, row_offset + 50)
+            self.draw_next(screen, col_offset, row_offset)
     
+    def draw_next(self, screen: pygame.display, col_offset: int, row_offset: int) -> None:
+        row_offset_multiplier = 0
+        for block in self.next_blocks:
+            if (block.id == 4):
+                block.draw(screen, col_offset + 240 - block.cell_size, row_offset + 30 + (3 * block.cell_size * row_offset_multiplier))
+            else:
+                block.draw(screen, col_offset + 240, row_offset + 30 + (3 * block.cell_size * row_offset_multiplier))
+            row_offset_multiplier += 1
+
     def reset(self) -> None:
         self.board.reset()
         self.blocks = [IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
         self.silhouettes = [ISilhouette(), JSilhouette(), LSilhouette(), OSilhouette(), SSilhouette(), TSilhouette(), ZSilhouette()]
         self.current_block = self.get_block()
-        self.next_block = self.get_block()
+        self.next_blocks = [self.get_block() for i in range(5)]
+        self.next_block = self.next_blocks[0]
         self.silhouette = self.get_silhouette()
         self.game_over = False
