@@ -55,13 +55,15 @@ while True:
                     moveLeft = False
                     moveRight = False
                     moveDown = False
-                    start_time = pygame.time.get_ticks()
+                    # start_time = pygame.time.get_ticks()
                     game.reset()
             else:
                 if event.key == pygame.K_LEFT:
                     moveLeft = True
+                    pygame.time.delay(75)
                 if event.key == pygame.K_RIGHT:
                     moveRight = True
+                    pygame.time.delay(75)
                 if event.key == pygame.K_DOWN:
                     moveDown = True
                 if event.key == pygame.K_UP:
@@ -84,11 +86,11 @@ while True:
     if not game.game_over:
         if moveLeft:
             game.move_left()
-            pygame.time.delay(55)
+            pygame.time.delay(25)
 
         if moveRight:
             game.move_right()
-            pygame.time.delay(55)
+            pygame.time.delay(25)
 
         if moveDown:
             game.move_down()
@@ -99,10 +101,10 @@ while True:
     # screen.fill((99, 99, 99), (COL_OFFSET + 300, ROW_OFFSET + 50, 301, 601))
     game.draw(screen, COL_OFFSET, ROW_OFFSET)
 
-    if not game.game_over:
-        current_time = (pygame.time.get_ticks() - start_time) / 1000.0
-        text_surface = my_font.render('Time: ' + str(current_time), True, (99, 99, 99))
-        screen.blit(text_surface, (295, 700))
+    # if not game.game_over:
+    #     current_time = (pygame.time.get_ticks() - start_time) / 1000.0
+    #     text_surface = my_font.render('Time: ' + str(current_time), True, (99, 99, 99))
+    #     screen.blit(text_surface, (295, 700))
 
     pygame.display.update()
-    clock.tick(60)
+    clock.tick(120)

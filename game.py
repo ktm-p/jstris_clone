@@ -121,16 +121,15 @@ class Game:
             self.board.grid[cell.row][cell.col] = self.current_block.id
         
         self.current_block = self.next_block
-
-        self.silhouette_offset = 0
-        self.silhouette_rotation_state = 0
-        self.silhouette = self.get_silhouette()
-
         self.get_next_block()
 
         self.board.clear_rows()
         self.turn_holding = False
 
+        self.silhouette_offset = 0
+        self.silhouette_rotation_state = 0
+        self.silhouette = self.get_silhouette()
+        
         if not self.block_fit():
             self.game_over = True
     
