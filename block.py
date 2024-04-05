@@ -11,11 +11,13 @@ class Block:
         self.colors = Colors.get_colors()
 
         self.row_offset = 0
+        self.row_state = 0
         self.col_offset = 0
     
     # BASIC MOVEMENT
     def move(self, rows: int, cols: int) -> None:
         self.row_offset += rows
+        self.row_state += rows
         self.col_offset += cols
     
     # ROTATIONS
@@ -24,6 +26,9 @@ class Block:
 
     def rotate_down(self) -> None:
         self.rotation_state = (self.rotation_state - 1) % len(self.cells)
+
+    def set_row_state(self, row_state: int) -> None:
+        self.row_state = row_state
 
     def set_rotation_state(self, rotation_state: int) -> None:
         self.rotation_state = rotation_state
