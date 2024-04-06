@@ -66,9 +66,25 @@ class Game:
 
     def move_down(self) -> None:
         self.current_block.move(1, 0)
+
         if not (self.block_inside() and self.block_fit()):
             self.current_block.move(-1, 0)
             self.place_block()
+
+    def move_up(self, steps: int = 1) -> None:
+        self.current_block.move(-steps, 0)
+    
+    def srs_move_right(self, steps: int = 1):
+        self.current_block.move(0, steps)
+        self.silhouette_col_offset += steps
+
+    def srs_move_left(self, steps: int = 1):
+        self.current_block.move(0, -steps)
+        self.silhouette_col_offset -= steps
+
+    def srs_move_down(self, steps: int = 1):
+        for i in range(steps):
+            self.current_block.move(1, 0)
 
     def hard_drop(self) -> None:
         while True:
@@ -89,6 +105,9 @@ class Game:
             if not(self.board.is_inside(cell.row, cell.col)):
                 self.kickback(cell.row, cell.col)
         
+        if not self.block_fit():
+            self.srs(False)
+
         self.silhouette = self.get_silhouette()
     
     def rotate_down(self) -> None:
@@ -100,8 +119,10 @@ class Game:
             if not(self.board.is_inside(cell.row, cell.col)):
                 self.kickback(cell.row, cell.col)
 
-        self.silhouette = self.get_silhouette()
+        if not self.block_fit():
+            self.srs(True)
 
+        self.silhouette = self.get_silhouette()
 
     def kickback(self, row: int, col: int) -> None:
         if (row < 0):
@@ -114,7 +135,148 @@ class Game:
         elif (col < 0):
             self.current_block.move(0, 1)
             self.silhouette_col_offset += 1
+    
+    # TODO: FIX EDGE CASE OF ROTATING ON EDGE OF BOARD...!!!
+    def srs(self, left: bool) -> None:
+        id = self.current_block.id
+        rotation_state = self.current_block.rotation_state
+        if left:
+            self.srs_left(id, rotation_state)
+    
+    def srs_left(self, id: int, rotation_state: int) -> None:
+        if id in [2, 3, 5, 6, 7]:
+            if rotation_state == 0:
+                self.fromRto0_fromRto2()
+            
+            if rotation_state == 1:
+                self.from2toR_from0toR()
+
+            if rotation_state == 2:
+                self.fromLto2_fromLto0()
+
+            if rotation_state == 3:
+                self.from0toL_from2toL()
         
+        if id == 1:
+            if rotation_state == 0:
+                self.i_fromRto0_fromRto2()
+            
+            if rotation_state == 1:
+                self.i_from2toR_from0toR()
+
+            if rotation_state == 2:
+                self.i_fromLto2_fromLto0()
+
+            if rotation_state == 3:
+                self.i_from0toL_from2toL()
+
+    def fromRto0_fromRto2(self):
+        # Test 2
+        self.srs_move_right()
+        if self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_down()
+        if self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_left()
+        self.srs_move_down()
+        if self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_right()
+        if self.block_fit():
+            return
+        
+        self.srs_move_left()
+        self.move_up(2)
+        self.rotate_up()
+        return
+    
+    def from2toR_from0toR(self):
+        # Test 2
+        self.srs_move_left()
+        if self.block_fit():
+            return
+
+        # Test 3
+        self.move_up()
+        if self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_right()
+        self.srs_move_down(3)
+        if self.block_fit():
+            return
+
+        # Test 5
+        self.srs_move_left()
+        if self.block_fit():
+            return
+        
+        self.srs_move_right()
+        self.move_up(2)
+        return
+    
+    def fromLto2_fromLto0(self):
+        # Test 2
+        self.srs_move_left()
+        if self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_down()
+        if self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_right()
+        self.move_up(3)
+        if self.block_fit():
+            return
+
+        # Test 5
+        self.srs_move_left()
+        if self.block_fit():
+            return
+
+        self.srs_move_right()
+        self.srs_move_down(2)
+        return
+    
+    def from0toL_from2toL(self):
+        # Test 2
+        self.srs_move_right()
+        if self.block_fit():
+            return
+        
+        # Test 3
+        self.move_up()
+        if self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_left()
+        self.srs_move_down(3)
+        if self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_right()
+        if self.block_fit():
+            return
+        
+        self.srs_move_left()
+        self.move_up(2)
+        self.rotate_up()
+        return
+    
+    
     # PLACES BLOCK
     def place_block(self) -> None:
         cells = self.current_block.get_cell_position()
@@ -206,8 +368,6 @@ class Game:
             self.board.draw_game_over(screen, col_offset, row_offset)
         else:
             self.board.draw(screen, col_offset, row_offset)
-            # self.board.draw(screen, col_offset + 300, row_offset + 50)
-            # self.silhouette.draw(screen) TODO: Figure out how to implement silhouettes.
             self.silhouette.draw(screen, col_offset, row_offset)
             self.current_block.draw(screen, col_offset, row_offset)
             self.draw_next(screen, col_offset, row_offset)
