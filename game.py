@@ -71,21 +71,6 @@ class Game:
             self.current_block.move(-1, 0)
             self.place_block()
 
-    def move_up(self, steps: int = 1) -> None:
-        self.current_block.move(-steps, 0)
-    
-    def srs_move_right(self, steps: int = 1):
-        self.current_block.move(0, steps)
-        self.silhouette_col_offset += steps
-
-    def srs_move_left(self, steps: int = 1):
-        self.current_block.move(0, -steps)
-        self.silhouette_col_offset -= steps
-
-    def srs_move_down(self, steps: int = 1):
-        for i in range(steps):
-            self.current_block.move(1, 0)
-
     def hard_drop(self) -> None:
         while True:
             self.current_block.move(1, 0)
@@ -137,146 +122,331 @@ class Game:
             self.silhouette_col_offset += 1
     
     # TODO: FIX EDGE CASE OF ROTATING ON EDGE OF BOARD...!!!
-    def srs(self, left: bool) -> None:
+    def srs(self, down: bool) -> None:
         id = self.current_block.id
         rotation_state = self.current_block.rotation_state
-        if left:
-            self.srs_left(id, rotation_state)
+        self.srs_helper(id, rotation_state, down)
     
-    def srs_left(self, id: int, rotation_state: int) -> None:
+    def srs_helper(self, id: int, rotation_state: int, down: bool) -> None:
         if id in [2, 3, 5, 6, 7]:
-            if rotation_state == 0:
-                self.fromRto0_fromRto2()
-            
-            if rotation_state == 1:
-                self.from2toR_from0toR()
+            if down:
+                if rotation_state == 0:
+                    self.fromRto0_fromRto2(down)
+                
+                if rotation_state == 1:
+                    self.from2toR_from0toR(down)
 
-            if rotation_state == 2:
-                self.fromLto2_fromLto0()
+                if rotation_state == 2:
+                    self.fromLto2_fromLto0(down)
 
-            if rotation_state == 3:
-                self.from0toL_from2toL()
-        
+                if rotation_state == 3:
+                    self.from0toL_from2toL(down)
+            else:
+                if rotation_state == 0:
+                    self.fromLto2_fromLto0(down)
+                
+                if rotation_state == 1:
+                    self.from2toR_from0toR(down)
+
+                if rotation_state == 2:
+                    self.fromRto0_fromRto2(down)
+
+                if rotation_state == 3:
+                    self.from0toL_from2toL(down)
+                    
         if id == 1:
-            if rotation_state == 0:
-                self.i_fromRto0_fromRto2()
-            
-            if rotation_state == 1:
-                self.i_from2toR_from0toR()
+            if down:
+                if rotation_state == 0:
+                    self.fromRto0_from2toL(down)
+                
+                if rotation_state == 1:
+                    self.from2toR_fromLto0(down)
 
-            if rotation_state == 2:
-                self.i_fromLto2_fromLto0()
+                if rotation_state == 2:
+                    self.fromLto2_from0toR(down)
 
-            if rotation_state == 3:
-                self.i_from0toL_from2toL()
+                if rotation_state == 3:
+                    self.from0toL_fromRto2(down)
+            else:
+                if rotation_state == 0:
+                    self.from2toR_fromLto0(down)  
 
-    def fromRto0_fromRto2(self):
+                if rotation_state == 1:
+                    self.fromLto2_from0toR(down)
+
+                if rotation_state == 2:
+                    self.from0toL_fromRto2(down)
+
+                if rotation_state == 3:
+                    self.fromRto0_from2toL(down)
+
+    # Non-I rotations
+    def fromRto0_fromRto2(self, down: bool) -> None:
         # Test 2
         self.srs_move_right()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 3
         self.srs_move_down()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 4
         self.srs_move_left()
-        self.srs_move_down()
-        if self.block_fit():
+        self.srs_move_up(3)
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 5
         self.srs_move_right()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         self.srs_move_left()
-        self.move_up(2)
-        self.rotate_up()
+        self.srs_move_down(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
         return
     
-    def from2toR_from0toR(self):
+    def from2toR_from0toR(self, down: bool) -> None:
         # Test 2
         self.srs_move_left()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
 
         # Test 3
-        self.move_up()
-        if self.block_fit():
+        self.srs_move_up()
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 4
         self.srs_move_right()
         self.srs_move_down(3)
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
 
         # Test 5
         self.srs_move_left()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         self.srs_move_right()
-        self.move_up(2)
+        self.srs_move_up(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
         return
     
-    def fromLto2_fromLto0(self):
+    def fromLto2_fromLto0(self, down: bool) -> None:
         # Test 2
         self.srs_move_left()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 3
         self.srs_move_down()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 4
         self.srs_move_right()
-        self.move_up(3)
-        if self.block_fit():
+        self.srs_move_up(3)
+        if self.block_inside() and self.block_fit():
             return
 
         # Test 5
         self.srs_move_left()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
 
         self.srs_move_right()
         self.srs_move_down(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
         return
     
-    def from0toL_from2toL(self):
+    def from0toL_from2toL(self, down: bool) -> None:
         # Test 2
         self.srs_move_right()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 3
-        self.move_up()
-        if self.block_fit():
+        self.srs_move_up()
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 4
         self.srs_move_left()
         self.srs_move_down(3)
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         # Test 5
         self.srs_move_right()
-        if self.block_fit():
+        if self.block_inside() and self.block_fit():
             return
         
         self.srs_move_left()
-        self.move_up(2)
-        self.rotate_up()
+        self.srs_move_up(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
         return
     
+    # I rotations
+    def fromRto0_from2toL(self, down: bool) -> None:
+        # Test 2
+        self.srs_move_right(2)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_left(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_right(3)
+        self.srs_move_up()
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_left(3)
+        self.srs_move_down(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        self.srs_move_right(1)
+        self.srs_move_up(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
+        return
     
+    def from2toR_fromLto0(self, down: bool) -> None:
+        # Test 2
+        self.srs_move_right()
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_left(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_right(3)
+        self.srs_move_down(2)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_left(3)
+        self.srs_move_up(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
+        return
+
+    def fromLto2_from0toR(self, down: bool) -> None:
+        # Test 2
+        self.srs_move_left(2)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_right(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_left(3)
+        self.srs_move_down(1)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_right(3)
+        self.srs_move_up(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        self.srs_move_left()
+        self.srs_move_down(2)
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
+        return
+
+    def from0toL_fromRto2(self, down: bool) -> None:
+        # Test 2
+        self.srs_move_left()
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 3
+        self.srs_move_right(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 4
+        self.srs_move_left(3)
+        self.srs_move_up(2)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        # Test 5
+        self.srs_move_right(3)
+        self.srs_move_down(3)
+        if self.block_inside() and self.block_fit():
+            return
+        
+        self.srs_move_left(2)
+        self.srs_move_up()
+        if down:
+            self.srs_rotate_up()
+        else:
+            self.srs_rotate_down()
+        return
+    
+    def srs_move_up(self, steps: int = 1) -> None:
+        self.current_block.move(-steps, 0)
+    
+    def srs_move_right(self, steps: int = 1):
+        self.current_block.move(0, steps)
+        self.silhouette_col_offset += steps
+
+    def srs_move_left(self, steps: int = 1):
+        self.current_block.move(0, -steps)
+        self.silhouette_col_offset -= steps
+
+    def srs_move_down(self, steps: int = 1):
+        for i in range(steps):
+            self.current_block.move(1, 0)
+
+    def srs_rotate_up(self):
+        self.current_block.rotate_up()
+        self.silhouette_rotation_state += 1
+    
+    def srs_rotate_down(self):
+        self.current_block.rotate_down()
+        self.silhouette_rotation_state -= 1
+
     # PLACES BLOCK
     def place_block(self) -> None:
         cells = self.current_block.get_cell_position()
