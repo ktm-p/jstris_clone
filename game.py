@@ -154,7 +154,7 @@ class Game:
                 if rotation_state == 3:
                     self.from0toL_from2toL(down)
                     
-        if id == 1:
+        elif id == 1:
             if down:
                 if rotation_state == 0:
                     self.fromRto0_from2toL(down)
@@ -436,16 +436,15 @@ class Game:
         self.silhouette_col_offset -= steps
 
     def srs_move_down(self, steps: int = 1):
-        for i in range(steps):
-            self.current_block.move(1, 0)
+        self.current_block.move(steps, 0)
 
     def srs_rotate_up(self):
         self.current_block.rotate_up()
-        self.silhouette_rotation_state += 1
+        self.silhouette_rotation_state = (self.silhouette_rotation_state + 1) % 4
     
     def srs_rotate_down(self):
         self.current_block.rotate_down()
-        self.silhouette_rotation_state -= 1
+        self.silhouette_rotation_state = (self.silhouette_rotation_state - 1) % 4
 
     # PLACES BLOCK
     def place_block(self) -> None:
