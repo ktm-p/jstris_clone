@@ -80,17 +80,11 @@ class Game:
                 break
     
     # ROTATIONS
-    # TODO: IMPLEMENT KICK-BACKS FOR ROTATION
     def rotate_up(self) -> None:
         self.current_block.rotate_up()
         self.silhouette_rotation_state = (self.silhouette_rotation_state + 1) % 4
 
-        cells = self.current_block.get_cell_position()
-        for cell in cells:
-            if not(self.board.is_inside(cell.row, cell.col)):
-                self.kickback(cell.row, cell.col)
-        
-        if not self.block_fit():
+        if not (self.block_inside() and self.block_fit()):
             self.srs(False)
 
         self.silhouette = self.get_silhouette()
@@ -99,29 +93,12 @@ class Game:
         self.current_block.rotate_down()
         self.silhouette_rotation_state = (self.silhouette_rotation_state - 1) % 4
 
-        cells = self.current_block.get_cell_position()
-        for cell in cells:
-            if not(self.board.is_inside(cell.row, cell.col)):
-                self.kickback(cell.row, cell.col)
-
-        if not self.block_fit():
+        if not (self.block_inside() and self.block_fit()):
             self.srs(True)
 
         self.silhouette = self.get_silhouette()
-
-    def kickback(self, row: int, col: int) -> None:
-        if (row < 0):
-            self.current_block.move(1, 0)
-        elif (row >= self.board.num_rows):
-            self.current_block.move(-1, 0)
-        elif (col >= self.board.num_cols):
-            self.current_block.move(0, -1)
-            self.silhouette_col_offset -= 1
-        elif (col < 0):
-            self.current_block.move(0, 1)
-            self.silhouette_col_offset += 1
     
-    # TODO: FIX EDGE CASE OF ROTATING ON EDGE OF BOARD...!!!
+    # Functions for implementing SRS
     def srs(self, down: bool) -> None:
         id = self.current_block.id
         rotation_state = self.current_block.rotation_state
