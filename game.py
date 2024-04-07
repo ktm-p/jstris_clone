@@ -21,6 +21,8 @@ class Game:
         self.turn_holding = False
         self.game_over = False
 
+        self.place_block_sound = pygame.mixer.Sound("sounds/place_block.wav")
+
     def get_block(self) -> Block:
         if len(self.blocks) == 0:
             self.blocks = [IPiece(), JPiece(), LPiece(), OPiece(), SPiece(), TPiece(), ZPiece()]
@@ -428,6 +430,9 @@ class Game:
         cells = self.current_block.get_cell_position()
         for cell in cells:
             self.board.grid[cell.row][cell.col] = self.current_block.id
+        
+        if not self.game_over:
+            self.place_block_sound.play().set_volume(0.5)
         
         self.current_block = self.next_block
         self.get_next_block()
