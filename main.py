@@ -35,6 +35,11 @@ moveLeft = False
 moveRight = False
 moveDown = False
 
+# EXPONENTIAL DELAY
+left_delay = 125
+right_delay = 125
+decay_factor = 0.65
+
 # MAIN GAMEPLAY LOOP
 while True:
     for event in pygame.event.get():
@@ -48,8 +53,12 @@ while True:
         #         pygame.display.set_mode(SIZE, pygame.FULLSCREEN)
         if event.type == TIMEREVENT and not game.game_over:
             game.move_down()
-            
+        
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                pygame.quit()
+                sys.exit()
+            
             if game.game_over:
                 if event.key == pygame.K_r:
                     moveLeft = False
@@ -59,11 +68,10 @@ while True:
                     game.reset()
             else:
                 if event.key == pygame.K_LEFT:
+                    
                     moveLeft = True
-                    pygame.time.delay(75)
                 if event.key == pygame.K_RIGHT:
                     moveRight = True
-                    pygame.time.delay(75)
                 if event.key == pygame.K_DOWN:
                     moveDown = True
                 if event.key == pygame.K_UP:
@@ -78,19 +86,23 @@ while True:
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and not game.game_over:
                 moveLeft = False
+                left_delay = 125
             if event.key == pygame.K_RIGHT and not game.game_over:
                 moveRight = False
+                right_delay = 125
             if event.key == pygame.K_DOWN and not game.game_over:
                 moveDown = False
 
     if not game.game_over:
         if moveLeft:
             game.move_left()
-            pygame.time.delay(25)
+            pygame.time.delay(left_delay)
+            left_delay = int(left_delay * decay_factor)
 
         if moveRight:
             game.move_right()
-            pygame.time.delay(25)
+            pygame.time.delay(right_delay)
+            right_delay = int(right_delay * decay_factor)
 
         if moveDown:
             game.move_down()
